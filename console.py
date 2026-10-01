@@ -2,6 +2,7 @@
 """Command interpreter for the AirBnB clone."""
 
 import cmd
+import re
 import shlex
 
 from models import storage
@@ -43,8 +44,9 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, arg):
-        """Create a new instance of a class."""
-        args = shlex.split(arg)
+        """Create a new instance of a class with optional params.
+        Usage: create <Class name> <key>=<value> ..."""
+        args = arg.split()
 
         if not args:
             print("** class name missing **")
@@ -57,6 +59,33 @@ class HBNBCommand(cmd.Cmd):
             return
 
         new_instance = self.classes[class_name]()
+
+        for param in args[1:]:
+            if "=" not in param:
+                continue
+            key, value = param.split("=", 1)
+            if not key:
+                continue
+
+            is_str = len(value) >= 2 and value[0] == value[-1] == '"'
+            if is_str:
+                inner = value[1:-1]
+                if re.search(r'(?<!\\)"', inner):
+                    continue
+                value = inner.replace('\\"', '"').replace("_", " ")
+            elif "." in value:
+                try:
+                    value = float(value)
+                except ValueError:
+                    continue
+            else:
+                try:
+                    value = int(value)
+                except ValueError:
+                    continue
+
+            setattr(new_instance, key, value)
+
         new_instance.save()
         print(new_instance.id)
 

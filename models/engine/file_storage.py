@@ -13,8 +13,11 @@ class FileStorage:
         if cls is not None:
             new_dict = {}
             for key, value in self.__objects.items():
-                if isinstance(value, cls) or (
-                        type(cls) is str and key.startswith(cls)):
+                if type(cls) is str:
+                    match = key.startswith(cls + '.')
+                else:
+                    match = isinstance(value, cls)
+                if match:
                     new_dict[key] = value
             return new_dict
         return self.__objects
