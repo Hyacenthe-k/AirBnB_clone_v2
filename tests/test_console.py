@@ -31,5 +31,54 @@ class TestHBNBCommand(unittest.TestCase):
         self.assertIn("quit", output)
 
 
+class TestCreateParams(unittest.TestCase):
+    """create <Class> key=value, FileStorage only"""
+
+    def setUp(self):
+        import os
+        if os.getenv('HBNB_TYPE_STORAGE') == 'db':
+            self.skipTest("FileStorage only")
+
+    def run_cmd(self, line):
+        from io import StringIO
+        from unittest.mock import patch
+        from console import HBNBCommand
+        with patch('sys.stdout', new=StringIO()) as out:
+            HBNBCommand().onecmd(line)
+            return out.getvalue().strip()
+
+    def get(self, key):
+        from models import storage
+        return storage.all()[key]
+
+    def test_string_param(self):
+        new_id = self.run_cmd('create State name="California"')
+        self.assertEqual(self.get("State." + new_id).name, "California")
+
+    def test_underscore_to_space(self):
+        new_id = self.run_cmd('create State name="San_Francisco"')
+        self.assertEqual(self.get("State." + new_id).name, "San Francisco")
+
+    def test_int_and_float(self):
+        new_id = self.run_cmd(
+            'create Place name="My_house" number_rooms=4 latitude=37.77')
+        obj = self.get("Place." + new_id)
+        self.assertIsInstance(obj.number_rooms, int)
+        self.assertEqual(obj.number_rooms, 4)
+        self.assertIsInstance(obj.latitude, float)
+        self.assertEqual(obj.latitude, 37.77)
+
+    def test_bad_param_skipped(self):
+        new_id = self.run_cmd('create State name="Ok" age=abc nope')
+        obj = self.get("State." + new_id)
+        self.assertEqual(obj.name, "Ok")
+        self.assertFalse(hasattr(obj, "age"))
+        self.assertFalse(hasattr(obj, "nope"))
+
+    def test_unknown_class(self):
+        out = self.run_cmd('create Nope name="x"')
+        self.assertEqual(out, "** class doesn't exist **")
+
+
 if __name__ == "__main__":
     unittest.main()
