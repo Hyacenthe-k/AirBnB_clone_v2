@@ -143,7 +143,7 @@ class HBNBCommand(cmd.Cmd):
             print("** no instance found **")
             return
 
-        del all_objects[key]
+        storage.delete(all_objects[key])
         storage.save()
 
     def do_all(self, arg):

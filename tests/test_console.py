@@ -80,5 +80,74 @@ class TestCreateParams(unittest.TestCase):
         self.assertEqual(out, "** class doesn't exist **")
 
 
+class TestCreateChain(unittest.TestCase):
+    """Chained create/show scenarios from the project, FileStorage only"""
+
+    def setUp(self):
+        import os
+        if os.getenv('HBNB_TYPE_STORAGE') == 'db':
+            self.skipTest("FileStorage only")
+
+    def run_cmd(self, line):
+        with patch('sys.stdout', new=StringIO()) as out:
+            HBNBCommand().onecmd(line)
+            return out.getvalue().strip()
+
+    def obj(self, key):
+        from models import storage
+        return storage.all()[key]
+
+    def make_state_and_city(self, city_name):
+        state_id = self.run_cmd('create State name="California"')
+        city_id = self.run_cmd(
+            'create City state_id="{}" name="{}"'.format(state_id, city_name))
+        return state_id, city_id
+
+    def test_create_plain_state(self):
+        new_id = self.run_cmd('create State')
+        self.assertEqual(self.obj("State." + new_id).id, new_id)
+
+    def test_create_city_with_state_id(self):
+        state_id, city_id = self.make_state_and_city("Fremont")
+        city = self.obj("City." + city_id)
+        self.assertEqual(city.state_id, state_id)
+        self.assertEqual(city.name, "Fremont")
+
+    def test_space_translated_in_city_name(self):
+        state_id, city_id = self.make_state_and_city("San_Francisco")
+        self.assertEqual(self.obj("City." + city_id).name, "San Francisco")
+
+    def test_create_place_and_show(self):
+        state_id, city_id = self.make_state_and_city("Fremont")
+        user_id = self.run_cmd(
+            'create User email="my@me.com" password="pwd" '
+            'first_name="FN" last_name="LN"')
+        place_id = self.run_cmd(
+            'create Place city_id="{}" user_id="{}" name="My_house" '
+            'description="no_description_yet" number_rooms=4 '
+            'number_bathrooms=1 max_guest=3 price_by_night=100 '
+            'latitude=120.12 longitude=101.4'.format(city_id, user_id))
+        out = self.run_cmd("show Place {}".format(place_id))
+        for part in ("'name': 'My house'", "'number_rooms': 4",
+                     "'max_guest': 3", "'price_by_night': 100",
+                     "'latitude': 120.12", "'longitude': 101.4",
+                     "'description': 'no description yet'"):
+            self.assertIn(part, out)
+
+    def test_negative_zero_and_long_float(self):
+        place_id = self.run_cmd(
+            'create Place name="X" number_bathrooms=0 max_guest=-3 '
+            'latitude=-120.12 longitude=0.41921928')
+        place = self.obj("Place." + place_id)
+        self.assertEqual(place.number_bathrooms, 0)
+        self.assertEqual(place.max_guest, -3)
+        self.assertEqual(place.latitude, -120.12)
+        self.assertEqual(place.longitude, 0.41921928)
+
+    def test_escaped_quote_in_string(self):
+        new_id = self.run_cmd('create State name="He_said_\\"hi\\""')
+        self.assertEqual(self.obj("State." + new_id).name, 'He said "hi"')
+
+
 if __name__ == "__main__":
     unittest.main()
