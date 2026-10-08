@@ -7,6 +7,8 @@ from models import storage
 from models.base_model import BaseModel
 from models.engine.file_storage import FileStorage
 
+DB_MODE = os.getenv('HBNB_TYPE_STORAGE') == 'db'
+
 
 class TestFileStorageInstantiation(unittest.TestCase):
     """Tests for how FileStorage is created and structured."""
@@ -19,11 +21,13 @@ class TestFileStorageInstantiation(unittest.TestCase):
         """__objects is a private class attribute of type dict."""
         self.assertEqual(dict, type(FileStorage._FileStorage__objects))
 
+    @unittest.skipIf(DB_MODE, "FileStorage semantics do not apply under DBStorage")
     def test_storage_initializes(self):
         """The models package exposes a single FileStorage instance."""
         self.assertEqual(FileStorage, type(storage))
 
 
+@unittest.skipIf(DB_MODE, "FileStorage semantics do not apply under DBStorage")
 class TestFileStorageMethods(unittest.TestCase):
     """Tests for all(), new(), save(), and reload()."""
 

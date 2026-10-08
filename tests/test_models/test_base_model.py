@@ -1,9 +1,12 @@
 #!/usr/bin/python3
 """Unit tests for the BaseModel class."""
+import os
 import unittest
 import time
 from datetime import datetime
 from models.base_model import BaseModel
+
+DB_MODE = os.getenv('HBNB_TYPE_STORAGE') == 'db'
 
 
 class TestBaseModelInstantiation(unittest.TestCase):
@@ -13,6 +16,7 @@ class TestBaseModelInstantiation(unittest.TestCase):
         """A BaseModel can be created with no arguments."""
         self.assertEqual(BaseModel, type(BaseModel()))
 
+    @unittest.skipIf(DB_MODE, "BaseModel is not mapped under DBStorage")
     def test_saved_instance_stored_in_objects(self):
         """An instance is registered with storage once it is saved."""
         bm = BaseModel()
@@ -78,6 +82,7 @@ class TestBaseModelInstantiation(unittest.TestCase):
         self.assertEqual(bm.name, "California")
 
 
+@unittest.skipIf(DB_MODE, "BaseModel is not mapped under DBStorage")
 class TestBaseModelSave(unittest.TestCase):
     """Tests for the save() method."""
 

@@ -1,11 +1,13 @@
 #!/usr/bin/python3
-"""Initializes the models package with a unique FileStorage instance.
+"""Chooses the storage engine based on HBNB_TYPE_STORAGE"""
+import os
 
-Any module that needs to read or write objects imports the `storage`
-variable defined here rather than creating its own FileStorage instance,
-guaranteeing a single shared source of truth for the whole application.
-"""
-from models.engine.file_storage import FileStorage
 
-storage = FileStorage()
+if os.getenv('HBNB_TYPE_STORAGE') == 'db':
+    from models.engine.db_storage import DBStorage
+    storage = DBStorage()
+else:
+    from models.engine.file_storage import FileStorage
+    storage = FileStorage()
+
 storage.reload()
