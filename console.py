@@ -86,7 +86,11 @@ class HBNBCommand(cmd.Cmd):
 
             setattr(new_instance, key, value)
 
-        new_instance.save()
+        try:
+            new_instance.save()
+        except Exception:
+            print("** could not create instance **")
+            return
         print(new_instance.id)
 
     def do_show(self, arg):
