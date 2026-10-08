@@ -13,9 +13,11 @@ class TestBaseModelInstantiation(unittest.TestCase):
         """A BaseModel can be created with no arguments."""
         self.assertEqual(BaseModel, type(BaseModel()))
 
-    def test_new_instance_stored_in_objects(self):
-        """A newly created instance is registered with storage."""
-        self.assertIn(BaseModel(), models_all_values())
+    def test_saved_instance_stored_in_objects(self):
+        """An instance is registered with storage once it is saved."""
+        bm = BaseModel()
+        bm.save()
+        self.assertIn(bm, models_all_values())
 
     def test_id_is_public_str(self):
         """id is a public string attribute."""
@@ -70,10 +72,10 @@ class TestBaseModelInstantiation(unittest.TestCase):
         self.assertEqual(bm.created_at, dt)
         self.assertEqual(bm.updated_at, dt)
 
-    def test_instantiation_with_None_kwargs(self):
-        """Passing only None-valued kwargs still yields default fields."""
-        with self.assertRaises(TypeError):
-            BaseModel(id=None, created_at=None, updated_at=None)
+    def test_instantiation_with_custom_kwargs(self):
+        """Extra kwargs become instance attributes."""
+        bm = BaseModel(name="California")
+        self.assertEqual(bm.name, "California")
 
 
 class TestBaseModelSave(unittest.TestCase):

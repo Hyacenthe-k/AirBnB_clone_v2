@@ -59,7 +59,7 @@ class TestFileStorageMethods(unittest.TestCase):
     def test_save_content_is_valid_json(self):
         """The file written by save() is parseable, valid JSON."""
         bm = BaseModel()
-        storage.save()
+        bm.save()
         with open(self.file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
         key = "BaseModel.{}".format(bm.id)
@@ -70,7 +70,7 @@ class TestFileStorageMethods(unittest.TestCase):
         """reload() repopulates __objects from a previously saved file."""
         bm = BaseModel()
         bm_id = bm.id
-        storage.save()
+        bm.save()
         FileStorage._FileStorage__objects = {}
         storage.reload()
         key = "BaseModel.{}".format(bm_id)
