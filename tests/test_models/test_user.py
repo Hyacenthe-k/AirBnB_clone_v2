@@ -1,14 +1,129 @@
 #!/usr/bin/python3
-"""Module for User unit tests."""
+"""Unit tests for the User class."""
+import os
+import time
 import unittest
+from models import storage
+from models.base_model import BaseModel
+from models.user import User
+
+DB_MODE = os.getenv('HBNB_TYPE_STORAGE') == 'db'
+ATTRS = [
+    ('email', ''),
+    ('password', ''),
+    ('first_name', ''),
+    ('last_name', '')
+]
+SAMPLES = {str: "sample", int: 7, float: 1.5, list: ["a1", "a2"]}
 
 
-class TestUser(unittest.TestCase):
-    """Test suite for User model."""
+@unittest.skipIf(DB_MODE, "class defaults are FileStorage-only")
+class TestUserAttributes(unittest.TestCase):
+    """Class attributes of User"""
 
-    def test_placeholder(self):
-        """Placeholder test."""
-        self.assertTrue(True)
+    def test_inherits_basemodel(self):
+        """User inherits from BaseModel."""
+        self.assertTrue(issubclass(User, BaseModel))
+
+    def test_email_class_default(self):
+        """User.email is a public class attribute, default ''."""
+        self.assertIn("email", User.__dict__)
+        self.assertEqual(User.email, '')
+        self.assertIs(type(User.email), str)
+
+    def test_email_instance_default(self):
+        """A new User starts with email equal to ''."""
+        obj = User()
+        self.assertEqual(obj.email, '')
+        self.assertIs(type(obj.email), str)
+
+    def test_password_class_default(self):
+        """User.password is a public class attribute, default ''."""
+        self.assertIn("password", User.__dict__)
+        self.assertEqual(User.password, '')
+        self.assertIs(type(User.password), str)
+
+    def test_password_instance_default(self):
+        """A new User starts with password equal to ''."""
+        obj = User()
+        self.assertEqual(obj.password, '')
+        self.assertIs(type(obj.password), str)
+
+    def test_first_name_class_default(self):
+        """User.first_name is a public class attribute, default ''."""
+        self.assertIn("first_name", User.__dict__)
+        self.assertEqual(User.first_name, '')
+        self.assertIs(type(User.first_name), str)
+
+    def test_first_name_instance_default(self):
+        """A new User starts with first_name equal to ''."""
+        obj = User()
+        self.assertEqual(obj.first_name, '')
+        self.assertIs(type(obj.first_name), str)
+
+    def test_last_name_class_default(self):
+        """User.last_name is a public class attribute, default ''."""
+        self.assertIn("last_name", User.__dict__)
+        self.assertEqual(User.last_name, '')
+        self.assertIs(type(User.last_name), str)
+
+    def test_last_name_instance_default(self):
+        """A new User starts with last_name equal to ''."""
+        obj = User()
+        self.assertEqual(obj.last_name, '')
+        self.assertIs(type(obj.last_name), str)
+
+
+@unittest.skipIf(DB_MODE, "FileStorage behavior")
+class TestUserBehavior(unittest.TestCase):
+    """Behavior of User instances"""
+
+    def test_instance_type(self):
+        """Creating User gives a User instance."""
+        self.assertIs(type(User()), User)
+
+    def test_unique_ids(self):
+        """Two instances never share an id."""
+        self.assertNotEqual(User().id, User().id)
+
+    def test_str_representation(self):
+        """__str__ starts with the class name and the id."""
+        obj = User()
+        self.assertIn("[User] ({})".format(obj.id), str(obj))
+
+    def test_saved_instance_in_storage(self):
+        """A saved instance is found in storage under User.<id>."""
+        obj = User()
+        obj.save()
+        key = "User.{}".format(obj.id)
+        self.assertIs(storage.all()[key], obj)
+        storage.delete(obj)
+        storage.save()
+
+    def test_to_dict_class_name(self):
+        """to_dict() reports the right class name."""
+        self.assertEqual(User().to_dict()["__class__"], "User")
+
+    def test_to_dict_roundtrip_keeps_attributes(self):
+        """Attributes survive to_dict() then User(**dict)."""
+        obj = User()
+        for name, default in ATTRS:
+            setattr(obj, name, SAMPLES[type(default)])
+        clone = User(**obj.to_dict())
+        self.assertIsNot(clone, obj)
+        self.assertEqual(clone.id, obj.id)
+        for name, default in ATTRS:
+            self.assertEqual(getattr(clone, name), SAMPLES[type(default)])
+
+    def test_save_updates_updated_at(self):
+        """save() moves updated_at forward."""
+        obj = User()
+        before = obj.updated_at
+        time.sleep(0.01)
+        obj.save()
+        self.assertLess(before, obj.updated_at)
+        storage.delete(obj)
+        storage.save()
 
 
 if __name__ == '__main__':
