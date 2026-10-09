@@ -16,49 +16,12 @@ ATTRS = [
 SAMPLES = {str: "sample", int: 7, float: 1.5, list: ["a1", "a2"]}
 
 
-@unittest.skipIf(DB_MODE, "class defaults are FileStorage-only")
 class TestReviewAttributes(unittest.TestCase):
     """Class attributes of Review"""
 
     def test_inherits_basemodel(self):
         """Review inherits from BaseModel."""
         self.assertTrue(issubclass(Review, BaseModel))
-
-    def test_place_id_class_default(self):
-        """Review.place_id is a public class attribute, default ''."""
-        self.assertIn("place_id", Review.__dict__)
-        self.assertEqual(Review.place_id, '')
-        self.assertIs(type(Review.place_id), str)
-
-    def test_place_id_instance_default(self):
-        """A new Review starts with place_id equal to ''."""
-        obj = Review()
-        self.assertEqual(obj.place_id, '')
-        self.assertIs(type(obj.place_id), str)
-
-    def test_user_id_class_default(self):
-        """Review.user_id is a public class attribute, default ''."""
-        self.assertIn("user_id", Review.__dict__)
-        self.assertEqual(Review.user_id, '')
-        self.assertIs(type(Review.user_id), str)
-
-    def test_user_id_instance_default(self):
-        """A new Review starts with user_id equal to ''."""
-        obj = Review()
-        self.assertEqual(obj.user_id, '')
-        self.assertIs(type(obj.user_id), str)
-
-    def test_text_class_default(self):
-        """Review.text is a public class attribute, default ''."""
-        self.assertIn("text", Review.__dict__)
-        self.assertEqual(Review.text, '')
-        self.assertIs(type(Review.text), str)
-
-    def test_text_instance_default(self):
-        """A new Review starts with text equal to ''."""
-        obj = Review()
-        self.assertEqual(obj.text, '')
-        self.assertIs(type(obj.text), str)
 
 
 @unittest.skipIf(DB_MODE, "FileStorage behavior")

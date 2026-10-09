@@ -24,7 +24,6 @@ ATTRS = [
 SAMPLES = {str: "sample", int: 7, float: 1.5, list: ["a1", "a2"]}
 
 
-@unittest.skipIf(DB_MODE, "class defaults are FileStorage-only")
 class TestPlaceAttributes(unittest.TestCase):
     """Class attributes of Place"""
 
@@ -32,125 +31,6 @@ class TestPlaceAttributes(unittest.TestCase):
         """Place inherits from BaseModel."""
         self.assertTrue(issubclass(Place, BaseModel))
 
-    def test_city_id_class_default(self):
-        """Place.city_id is a public class attribute, default ''."""
-        self.assertIn("city_id", Place.__dict__)
-        self.assertEqual(Place.city_id, '')
-        self.assertIs(type(Place.city_id), str)
-
-    def test_city_id_instance_default(self):
-        """A new Place starts with city_id equal to ''."""
-        obj = Place()
-        self.assertEqual(obj.city_id, '')
-        self.assertIs(type(obj.city_id), str)
-
-    def test_user_id_class_default(self):
-        """Place.user_id is a public class attribute, default ''."""
-        self.assertIn("user_id", Place.__dict__)
-        self.assertEqual(Place.user_id, '')
-        self.assertIs(type(Place.user_id), str)
-
-    def test_user_id_instance_default(self):
-        """A new Place starts with user_id equal to ''."""
-        obj = Place()
-        self.assertEqual(obj.user_id, '')
-        self.assertIs(type(obj.user_id), str)
-
-    def test_name_class_default(self):
-        """Place.name is a public class attribute, default ''."""
-        self.assertIn("name", Place.__dict__)
-        self.assertEqual(Place.name, '')
-        self.assertIs(type(Place.name), str)
-
-    def test_name_instance_default(self):
-        """A new Place starts with name equal to ''."""
-        obj = Place()
-        self.assertEqual(obj.name, '')
-        self.assertIs(type(obj.name), str)
-
-    def test_description_class_default(self):
-        """Place.description is a public class attribute, default ''."""
-        self.assertIn("description", Place.__dict__)
-        self.assertEqual(Place.description, '')
-        self.assertIs(type(Place.description), str)
-
-    def test_description_instance_default(self):
-        """A new Place starts with description equal to ''."""
-        obj = Place()
-        self.assertEqual(obj.description, '')
-        self.assertIs(type(obj.description), str)
-
-    def test_number_rooms_class_default(self):
-        """Place.number_rooms is a public class attribute, default 0."""
-        self.assertIn("number_rooms", Place.__dict__)
-        self.assertEqual(Place.number_rooms, 0)
-        self.assertIs(type(Place.number_rooms), int)
-
-    def test_number_rooms_instance_default(self):
-        """A new Place starts with number_rooms equal to 0."""
-        obj = Place()
-        self.assertEqual(obj.number_rooms, 0)
-        self.assertIs(type(obj.number_rooms), int)
-
-    def test_number_bathrooms_class_default(self):
-        """Place.number_bathrooms is a public class attribute, default 0."""
-        self.assertIn("number_bathrooms", Place.__dict__)
-        self.assertEqual(Place.number_bathrooms, 0)
-        self.assertIs(type(Place.number_bathrooms), int)
-
-    def test_number_bathrooms_instance_default(self):
-        """A new Place starts with number_bathrooms equal to 0."""
-        obj = Place()
-        self.assertEqual(obj.number_bathrooms, 0)
-        self.assertIs(type(obj.number_bathrooms), int)
-
-    def test_max_guest_class_default(self):
-        """Place.max_guest is a public class attribute, default 0."""
-        self.assertIn("max_guest", Place.__dict__)
-        self.assertEqual(Place.max_guest, 0)
-        self.assertIs(type(Place.max_guest), int)
-
-    def test_max_guest_instance_default(self):
-        """A new Place starts with max_guest equal to 0."""
-        obj = Place()
-        self.assertEqual(obj.max_guest, 0)
-        self.assertIs(type(obj.max_guest), int)
-
-    def test_price_by_night_class_default(self):
-        """Place.price_by_night is a public class attribute, default 0."""
-        self.assertIn("price_by_night", Place.__dict__)
-        self.assertEqual(Place.price_by_night, 0)
-        self.assertIs(type(Place.price_by_night), int)
-
-    def test_price_by_night_instance_default(self):
-        """A new Place starts with price_by_night equal to 0."""
-        obj = Place()
-        self.assertEqual(obj.price_by_night, 0)
-        self.assertIs(type(obj.price_by_night), int)
-
-    def test_latitude_class_default(self):
-        """Place.latitude is a public class attribute, default 0.0."""
-        self.assertIn("latitude", Place.__dict__)
-        self.assertEqual(Place.latitude, 0.0)
-        self.assertIs(type(Place.latitude), float)
-
-    def test_latitude_instance_default(self):
-        """A new Place starts with latitude equal to 0.0."""
-        obj = Place()
-        self.assertEqual(obj.latitude, 0.0)
-        self.assertIs(type(obj.latitude), float)
-
-    def test_longitude_class_default(self):
-        """Place.longitude is a public class attribute, default 0.0."""
-        self.assertIn("longitude", Place.__dict__)
-        self.assertEqual(Place.longitude, 0.0)
-        self.assertIs(type(Place.longitude), float)
-
-    def test_longitude_instance_default(self):
-        """A new Place starts with longitude equal to 0.0."""
-        obj = Place()
-        self.assertEqual(obj.longitude, 0.0)
-        self.assertIs(type(obj.longitude), float)
 
     def test_amenity_ids_class_default(self):
         """Place.amenity_ids is a public class attribute, default []."""

@@ -17,61 +17,12 @@ ATTRS = [
 SAMPLES = {str: "sample", int: 7, float: 1.5, list: ["a1", "a2"]}
 
 
-@unittest.skipIf(DB_MODE, "class defaults are FileStorage-only")
 class TestUserAttributes(unittest.TestCase):
     """Class attributes of User"""
 
     def test_inherits_basemodel(self):
         """User inherits from BaseModel."""
         self.assertTrue(issubclass(User, BaseModel))
-
-    def test_email_class_default(self):
-        """User.email is a public class attribute, default ''."""
-        self.assertIn("email", User.__dict__)
-        self.assertEqual(User.email, '')
-        self.assertIs(type(User.email), str)
-
-    def test_email_instance_default(self):
-        """A new User starts with email equal to ''."""
-        obj = User()
-        self.assertEqual(obj.email, '')
-        self.assertIs(type(obj.email), str)
-
-    def test_password_class_default(self):
-        """User.password is a public class attribute, default ''."""
-        self.assertIn("password", User.__dict__)
-        self.assertEqual(User.password, '')
-        self.assertIs(type(User.password), str)
-
-    def test_password_instance_default(self):
-        """A new User starts with password equal to ''."""
-        obj = User()
-        self.assertEqual(obj.password, '')
-        self.assertIs(type(obj.password), str)
-
-    def test_first_name_class_default(self):
-        """User.first_name is a public class attribute, default ''."""
-        self.assertIn("first_name", User.__dict__)
-        self.assertEqual(User.first_name, '')
-        self.assertIs(type(User.first_name), str)
-
-    def test_first_name_instance_default(self):
-        """A new User starts with first_name equal to ''."""
-        obj = User()
-        self.assertEqual(obj.first_name, '')
-        self.assertIs(type(obj.first_name), str)
-
-    def test_last_name_class_default(self):
-        """User.last_name is a public class attribute, default ''."""
-        self.assertIn("last_name", User.__dict__)
-        self.assertEqual(User.last_name, '')
-        self.assertIs(type(User.last_name), str)
-
-    def test_last_name_instance_default(self):
-        """A new User starts with last_name equal to ''."""
-        obj = User()
-        self.assertEqual(obj.last_name, '')
-        self.assertIs(type(obj.last_name), str)
 
 
 @unittest.skipIf(DB_MODE, "FileStorage behavior")

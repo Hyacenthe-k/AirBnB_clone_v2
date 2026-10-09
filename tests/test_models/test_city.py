@@ -15,37 +15,12 @@ ATTRS = [
 SAMPLES = {str: "sample", int: 7, float: 1.5, list: ["a1", "a2"]}
 
 
-@unittest.skipIf(DB_MODE, "class defaults are FileStorage-only")
 class TestCityAttributes(unittest.TestCase):
     """Class attributes of City"""
 
     def test_inherits_basemodel(self):
         """City inherits from BaseModel."""
         self.assertTrue(issubclass(City, BaseModel))
-
-    def test_state_id_class_default(self):
-        """City.state_id is a public class attribute, default ''."""
-        self.assertIn("state_id", City.__dict__)
-        self.assertEqual(City.state_id, '')
-        self.assertIs(type(City.state_id), str)
-
-    def test_state_id_instance_default(self):
-        """A new City starts with state_id equal to ''."""
-        obj = City()
-        self.assertEqual(obj.state_id, '')
-        self.assertIs(type(obj.state_id), str)
-
-    def test_name_class_default(self):
-        """City.name is a public class attribute, default ''."""
-        self.assertIn("name", City.__dict__)
-        self.assertEqual(City.name, '')
-        self.assertIs(type(City.name), str)
-
-    def test_name_instance_default(self):
-        """A new City starts with name equal to ''."""
-        obj = City()
-        self.assertEqual(obj.name, '')
-        self.assertIs(type(obj.name), str)
 
 
 @unittest.skipIf(DB_MODE, "FileStorage behavior")

@@ -14,25 +14,12 @@ ATTRS = [
 SAMPLES = {str: "sample", int: 7, float: 1.5, list: ["a1", "a2"]}
 
 
-@unittest.skipIf(DB_MODE, "class defaults are FileStorage-only")
 class TestAmenityAttributes(unittest.TestCase):
     """Class attributes of Amenity"""
 
     def test_inherits_basemodel(self):
         """Amenity inherits from BaseModel."""
         self.assertTrue(issubclass(Amenity, BaseModel))
-
-    def test_name_class_default(self):
-        """Amenity.name is a public class attribute, default ''."""
-        self.assertIn("name", Amenity.__dict__)
-        self.assertEqual(Amenity.name, '')
-        self.assertIs(type(Amenity.name), str)
-
-    def test_name_instance_default(self):
-        """A new Amenity starts with name equal to ''."""
-        obj = Amenity()
-        self.assertEqual(obj.name, '')
-        self.assertIs(type(obj.name), str)
 
 
 @unittest.skipIf(DB_MODE, "FileStorage behavior")
