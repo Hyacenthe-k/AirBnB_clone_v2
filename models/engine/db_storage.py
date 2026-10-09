@@ -39,6 +39,7 @@ class DBStorage:
 
     def all(self, cls=None):
         """Returns a dict of objects, filtered by class if given"""
+        self.__ensure_tables()
         result = {}
         if cls is None:
             for klass in classes.values():
@@ -55,10 +56,12 @@ class DBStorage:
 
     def new(self, obj):
         """Adds obj to the current session"""
+        self.__ensure_tables()
         self.__session.add(obj)
 
     def save(self):
         """Commits the current session"""
+        self.__ensure_tables()
         try:
             self.__session.commit()
         except Exception:
@@ -72,10 +75,28 @@ class DBStorage:
     def delete(self, obj=None):
         """Deletes obj from the current session if not None"""
         if obj is not None:
+            self.__ensure_tables()
             self.__session.delete(obj)
 
     def reload(self):
-        """Creates all tables and instantiates the session"""
-        Base.metadata.create_all(self.__engine)
+        """Creates the session; defers create_all if the DB is unreachable"""
         Session = sessionmaker(bind=self.__engine, expire_on_commit=False)
         self.__session = scoped_session(Session)
+        self.__tables_created = False
+        self.__try_create_tables()
+
+    def __try_create_tables(self):
+        """Runs Base.metadata.create_all once, tolerating failures"""
+        if self.__tables_created:
+            return True
+        try:
+            Base.metadata.create_all(self.__engine)
+            self.__tables_created = True
+            return True
+        except Exception:
+            return False
+
+    def __ensure_tables(self):
+        """Retries create_all lazily before any DB operation"""
+        if not self.__tables_created:
+            self.__try_create_tables()
