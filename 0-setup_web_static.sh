@@ -36,15 +36,18 @@ fi
 
 # Update nginx configuration
 CONFIG="/etc/nginx/sites-available/default"
-if ! grep -q "location /hbnb_static" "$CONFIG"; then
+if [ -f "$CONFIG" ]; then
     python3 -c "
 import re
 with open('$CONFIG') as f:
     content = f.read()
-# Insert before the last closing brace of the server block
-new_content = re.sub(r'(server\s*\{[^}]*?)(\n\})', r'\1\n\tlocation /hbnb_static {\n\t\talias /data/web_static/current/;\n\t\tautoindex off;\n\t}\2', content, count=1, flags=re.DOTALL)
+# Change the root directive to point to the current symlink
+content = re.sub(r'root /var/www/html;', r'root /data/web_static/current;', content)
+# Add the /hbnb_static alias just in case
+if 'location /hbnb_static' not in content:
+    content = re.sub(r'(server\s*\{[^}]*?)(\n\})', r'\1\n\tlocation /hbnb_static {\n\t\talias /data/web_static/current/;\n\t\tautoindex off;\n\t}\2', content, count=1, flags=re.DOTALL)
 with open('$CONFIG', 'w') as f:
-    f.write(new_content)
+    f.write(content)
 "
 fi
 
