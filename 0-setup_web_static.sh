@@ -29,7 +29,7 @@ rm -f /data/web_static/current
 ln -s /data/web_static/releases/test/ /data/web_static/current
 
 # Give ownership of /data/ to ubuntu:ubuntu recursively
-chown -R ubuntu:ubuntu /data/
+chown -R ubuntu:ubuntu /data/ || true
 
 # Update nginx configuration
 CONFIG="/etc/nginx/sites-available/default"
