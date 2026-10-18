@@ -2,7 +2,9 @@
 """Fabric script that creates and distributes an archive to web servers"""
 import os
 from datetime import datetime
-from fabric.api import local, put, run, settings
+from fabric.api import env, local, put, run, settings
+
+env.hosts = ['34.207.10.115', '54.157.32.137']
 
 
 def do_pack():
