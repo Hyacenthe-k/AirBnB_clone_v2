@@ -5,7 +5,7 @@ from datetime import datetime
 import os
 
 
-env.hosts = ['34.207.10.115', '54.157.32.137']
+env.hosts = ['34.207.10.115', '54.157.32.137'] if not env.hosts else env.hosts
 env.user = 'ubuntu'
 
 

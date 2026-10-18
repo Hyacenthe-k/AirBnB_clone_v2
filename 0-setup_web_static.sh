@@ -56,3 +56,4 @@ fi
 
 # Restart nginx
 service nginx restart
+exit 0
