@@ -1,53 +1,38 @@
 #!/usr/bin/python3
 """Fabric script that distributes an archive to web servers"""
-from fabric.api import env, put, run
 import os
-
-
-env.user = 'root'
+from fabric.api import put, run, settings
 
 
 def do_deploy(archive_path):
-    """Distributes an archive to the web servers.
+    """Distributes an archive to the web servers and deploys it.
 
-    Returns True if all operations succeeded, False otherwise.
+    Returns True on success, False otherwise.
     """
-    if not os.path.exists(archive_path):
+    if not os.path.isfile(archive_path):
         return False
 
-    try:
-        # Get the archive filename with and without extension
-        filename = os.path.basename(archive_path)
-        no_ext = filename.replace(".tgz", "")
+    filename = os.path.basename(archive_path)
+    name = os.path.splitext(filename)[0]
+    tmp = "/tmp/{}".format(filename)
+    release = "/data/web_static/releases/{}".format(name)
+    current = "/data/web_static/current"
 
-        remote_tmp = "/tmp/{}".format(filename)
-        release_dir = "/data/web_static/releases/{}".format(no_ext)
+    with settings(warn_only=True):
+        if put(archive_path, tmp).failed:
+            return False
+        commands = [
+            "mkdir -p {}".format(release),
+            "tar -xzf {} -C {}".format(tmp, release),
+            "rm -f {}".format(tmp),
+            "cp -a {}/web_static/. {}/".format(release, release),
+            "rm -rf {}/web_static".format(release),
+            "rm -rf {}".format(current),
+            "ln -s {} {}".format(release, current),
+        ]
+        for cmd in commands:
+            if run(cmd).failed:
+                return False
 
-        # Upload the archive to /tmp/ on the server
-        put(archive_path, remote_tmp)
-
-        # Create the release directory
-        run("mkdir -p {}".format(release_dir))
-
-        # Uncompress the archive into the release directory
-        run("tar -xzf {} -C {}".format(remote_tmp, release_dir))
-
-        # Delete the archive from the server
-        run("rm {}".format(remote_tmp))
-
-        # Move contents out of the nested web_static/ folder
-        run("mv {}/web_static/* {}".format(release_dir, release_dir))
-
-        # Remove the now-empty nested folder
-        run("rm -rf {}/web_static".format(release_dir))
-
-        # Delete the old symlink
-        run("rm -rf /data/web_static/current")
-
-        # Create the new symlink
-        run("ln -s {} /data/web_static/current".format(release_dir))
-
-        print("New version deployed!")
-        return True
-    except Exception:
-        return False
+    print("New version deployed!")
+    return True

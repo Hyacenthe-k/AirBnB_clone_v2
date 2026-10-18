@@ -5,7 +5,6 @@ from datetime import datetime
 import os
 
 
-env.user = 'root'
 
 
 def do_pack():
