@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Sets up a web server for the AirBnB clone deployment
 
+set -e
+
 # Install nginx if not already installed
 if ! command -v nginx > /dev/null 2>&1; then
     apt-get update
@@ -27,31 +29,30 @@ rm -f /data/web_static/current
 ln -s /data/web_static/releases/test/ /data/web_static/current
 
 # Give ownership of /data/ to ubuntu:ubuntu recursively
-# Fallback to current user if ubuntu doesn't exist
-if id "ubuntu" &>/dev/null; then
-    chown -R ubuntu:ubuntu /data/
-else
-    chown -R "$(id -u):$(id -g)" /data/
-fi
+chown -R ubuntu:ubuntu /data/
 
 # Update nginx configuration
 CONFIG="/etc/nginx/sites-available/default"
-if [ -f "$CONFIG" ]; then
+if ! grep -q "location /hbnb_static" "$CONFIG"; then
+    # Use python to safely insert the location block before the last closing brace
     python3 -c "
 import re
-with open('$CONFIG') as f:
+with open('$CONFIG', 'r') as f:
     content = f.read()
-# Change the root directive to point to the current symlink
-content = re.sub(r'root /var/www/html;', r'root /data/web_static/current;', content)
-# Add the /hbnb_static alias just in case
-if 'location /hbnb_static' not in content:
-    content = re.sub(r'(server\s*\{[^}]*?)(\n\})', r'\1\n\tlocation /hbnb_static {\n\t\talias /data/web_static/current/;\n\t\tautoindex off;\n\t}\2', content, count=1, flags=re.DOTALL)
+block = '''
+\tlocation /hbnb_static {
+\t\talias /data/web_static/current/;
+\t\tautoindex off;
+\t}
+'''
+# Find the last closing brace and insert before it
+last_brace = content.rfind('}')
+if last_brace != -1:
+    content = content[:last_brace] + block + content[last_brace:]
 with open('$CONFIG', 'w') as f:
     f.write(content)
 "
 fi
 
 # Restart nginx
-service nginx restart || systemctl restart nginx || nginx -s reload
-
-exit 0
+service nginx restart

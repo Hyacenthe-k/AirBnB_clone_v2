@@ -5,8 +5,7 @@ from datetime import datetime
 import os
 
 
-env.hosts = ['localhost']
-env.user = 'root'
+env.user = 'ubuntu'
 
 
 def do_pack():
@@ -39,17 +38,6 @@ def do_deploy(archive_path):
         no_ext = filename.replace(".tgz", "")
         remote_tmp = "/tmp/{}".format(filename)
         release_dir = "/data/web_static/releases/{}".format(no_ext)
-
-
-        # Ensure nginx is installed and configured on the remote host
-        run("if ! command -v nginx > /dev/null 2>&1; then apt-get update && apt-get install -y nginx; fi")
-        run("mkdir -p /data/web_static/releases/test/ /data/web_static/shared/")
-        run("rm -rf /data/web_static/current")
-        run("ln -s /data/web_static/releases/test/ /data/web_static/current")
-        
-        # Safely update nginx config to serve files at root and /hbnb_static
-        run("python3 -c \"import re; c=open('/etc/nginx/sites-available/default').read(); c=re.sub(r'root /var/www/html;', r'root /data/web_static/current;', c); open('/etc/nginx/sites-available/default','w').write(c)\"")
-        run("service nginx restart || systemctl restart nginx || nginx -s reload")
 
         put(archive_path, remote_tmp)
         run("mkdir -p {}".format(release_dir))
