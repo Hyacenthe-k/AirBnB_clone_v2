@@ -3,38 +3,51 @@
 from fabric.api import env, put, run
 import os
 
-env.hosts = ['34.207.10.115', '54.157.32.137'] if not env.hosts else env.hosts
+
 env.user = 'ubuntu'
 
+
 def do_deploy(archive_path):
-    """Distributes an archive to the web servers."""
+    """Distributes an archive to the web servers.
+
+    Returns True if all operations succeeded, False otherwise.
+    """
     if not os.path.exists(archive_path):
         return False
 
     try:
+        # Get the archive filename with and without extension
         filename = os.path.basename(archive_path)
         no_ext = filename.replace(".tgz", "")
+
         remote_tmp = "/tmp/{}".format(filename)
         release_dir = "/data/web_static/releases/{}".format(no_ext)
 
-        # Upload the archive
+        # Upload the archive to /tmp/ on the server
         put(archive_path, remote_tmp)
 
-        # Uncompress to release folder
+        # Create the release directory
         run("mkdir -p {}".format(release_dir))
+
+        # Uncompress the archive into the release directory
         run("tar -xzf {} -C {}".format(remote_tmp, release_dir))
+
+        # Delete the archive from the server
         run("rm {}".format(remote_tmp))
 
-        # Move files up and remove empty folder
+        # Move contents out of the nested web_static/ folder
         run("mv {}/web_static/* {}".format(release_dir, release_dir))
+
+        # Remove the now-empty nested folder
         run("rm -rf {}/web_static".format(release_dir))
 
-        # Update symlink
+        # Delete the old symlink
         run("rm -rf /data/web_static/current")
+
+        # Create the new symlink
         run("ln -s {} /data/web_static/current".format(release_dir))
 
         print("New version deployed!")
         return True
-    except Exception as e:
-        print("Deploy failed: {}".format(e))
+    except Exception:
         return False

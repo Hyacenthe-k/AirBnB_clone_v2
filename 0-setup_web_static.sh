@@ -28,6 +28,11 @@ HTML
 rm -f /data/web_static/current
 ln -s /data/web_static/releases/test/ /data/web_static/current
 
+# Create ubuntu user if it doesn't exist
+if ! id -u ubuntu > /dev/null 2>&1; then
+    useradd -m -s /bin/bash ubuntu
+fi
+
 # Give ownership of /data/ to ubuntu:ubuntu recursively
 chown -R ubuntu:ubuntu /data/ || true
 
@@ -56,4 +61,5 @@ fi
 
 # Restart nginx
 service nginx restart
+
 exit 0
